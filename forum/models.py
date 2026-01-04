@@ -36,7 +36,7 @@ class Resource(models.Model):
     )
     title = models.CharField(max_length=600)
     resource_type = models.CharField(max_length=10, choices=RESOURCE_TYPES)
-    link = models.URLField()
+    link = models.URLField(max_length=1000)
 
     def __str__(self):
         return self.title
