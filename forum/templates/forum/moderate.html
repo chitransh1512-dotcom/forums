@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Moderation Panel</h2>
+
+{% if reports %}
+  {% for report in reports %}
+    <div style="border:1px solid #ccc; padding:12px; margin-bottom:12px;">
+      <p><strong>Reported Post</strong></p>
+
+      <p>{{ report.post.content }}</p>
+
+      <p>
+        <small>
+          Reported by {{ report.reported_by.email }} |
+          Thread:
+          <a href="{% url 'thread_detail' report.post.thread.id %}">
+            {{ report.post.thread.title }}
+          </a>
+        </small>
+      </p>
+
+      <a href="{% url 'delete_post' report.post.id %}">Delete Post</a>
+      |
+      <a href="{% url 'resolve_report' report.id %}">Mark Resolved</a>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No pending reports </p>
+{% endif %}
+
+{% endblock %}

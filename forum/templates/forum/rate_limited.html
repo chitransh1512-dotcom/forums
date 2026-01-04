@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Slow down ...</h2>
+
+<p>
+  You're temporarily blocked from {{ action }}.
+  Try again in {{ retry_after }}.
+</p>
+
+<a href="javascript:history.back()">Go back</a>
+{% endblock %}

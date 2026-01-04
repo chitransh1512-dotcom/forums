@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Browse Threads by Tags</h2>
+
+<form method="get">
+    <div class="mb-3">
+        {% for tag in tags %}
+            <label class="mr-2">
+                <input
+                    type="checkbox"
+                    name="tags"
+                    value="{{ tag.id }}"
+                    {% if tag in selected_tags %}checked{% endif %}
+                >
+                #{{ tag.name }}
+            </label>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">
+        Apply Filters
+    </button>
+</form>
+
+<hr>
+
+{% if page_obj %}
+    {% for thread in page_obj %}
+        <div class="mb-2">
+            <a href="{% url 'thread_detail' thread.id %}">
+                {{ thread.title }}
+            </a>
+            {% if thread.is_locked %} 🔒 {% endif %}
+        </div>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <div>
+            {% if page_obj.has_previous %}
+            <a href="?{% for t in selected_tags %}tags={{ t.id }}&{% endfor %}page={{ page_obj.previous_page_number }}">
+                Prev
+            </a>
+            {% endif %}
+
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+            {% if page_obj.has_next %}
+            <a href="?{% for t in selected_tags %}tags={{ t.id }}&{% endfor %}page={{ page_obj.next_page_number }}">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <p>No threads found for selected tags.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if thread.tags.all %}
+  <p>
+    {% for tag in thread.tags.all %}
+      <a href="{% url 'threads_by_tag' tag.slug %}">
+        #{{ tag.name }}
+      </a>
+    {% endfor %}
+  </p>
+{% endif %}
+
+
+<h2>{{ thread.title }}</h2>
+
+<p>
+  Created by {{ thread.creator.email }} |
+  {{ thread.created_at }}
+</p>
+
+{% load markdown_extras %}
+<div>
+  {{ thread.content|markdownify|safe }}
+</div>
+
+<p>
+  Upvote {{ thread.likes.count }}
+  <a href="{% url 'like_thread' thread.id %}">Like</a>
+</p>
+
+
+{% if thread.is_locked %}
+  <p><strong>This thread is locked.</strong></p>
+{% endif %}
+
+{% if perms.forum.change_thread %}
+  {% if thread.is_locked %}
+    <a href="{% url 'lock_thread' thread.id %}">Unlock Thread</a>
+  {% else %}
+    <a href="{% url 'lock_thread' thread.id %}">Lock Thread</a>
+  {% endif %}
+{% endif %}
+
+<hr>
+
+<h3>Replies</h3>
+
+{% for post in posts %}
+  <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+
+    {% if post.is_deleted %}
+      <p><em>This reply was deleted.</em></p>
+    {% else %}
+      <div>
+        {{ post.content|markdownify|safe }}
+      </div>
+
+      <small>By {{ post.author.email }} | {{ post.created_at }}</small>
+
+      <br>
+
+      {% if user == post.author or perms.forum.delete_post %}
+        <a href="{% url 'delete_post' post.id %}">Delete</a>
+      {% endif %}
+
+      {% if not thread.is_locked %}
+        <a href="{% url 'report_post' post.id %}">Report</a>
+      {% endif %}
+
+    {% endif %}
+
+  </div>
+{% empty %}
+  <p>No replies yet.</p>
+{% endfor %}
+
+{% if not thread.is_locked %}
+  <a href="{% url 'post_create' thread.id %}">Reply</a>
+{% endif %}
+
+{% endblock %}
+

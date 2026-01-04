@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudyDeck Forum{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <a class="navbar-brand" href="{% url 'thread_list' %}">
+            StudyDeck
+        </a>
+
+        {% if user.is_authenticated %}
+        <!-- Global Search -->
+        <form
+            class="form-inline mx-auto"
+            method="get"
+            action="{% url 'search_threads' %}"
+        >
+            <input
+                class="form-control form-control-sm"
+                type="search"
+                name="q"
+                placeholder="Search threads..."
+                value="{{ request.GET.q }}"
+                required
+            >
+        </form>
+        {% endif %}
+
+        <ul class="navbar-nav ml-auto">
+
+            {% if user.is_authenticated %}
+
+                <!-- Browse by Tags -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'filter_by_tags' %}">
+                        Browse Tags
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <span class="navbar-text text-light mr-3">
+                        {{ user.email }}
+                    </span>
+                </li>
+
+                {% if perms.forum.change_thread %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'moderate' %}">
+                            Moderation
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_logout' %}">
+                        Logout
+                    </a>
+                </li>
+
+            {% else %}
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}">
+                        Login
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_signup' %}">
+                        Sign up
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_reset_password' %}">
+                        Forgot Password
+                    </a>
+                </li>
+
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+</main>
+
+</body>
+</html>
+
