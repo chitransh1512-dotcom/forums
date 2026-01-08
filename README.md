@@ -19,6 +19,7 @@ This project was developed as part of a backend evaluation task, with a focus on
 - **Fuzzy search** for threads
 - **Tag-based thread filtering**
 - Clean UI using Django templates + Bootstrap
+- Fully deployed to a **production environment**
 
 
 ##  Tech Stack
@@ -28,6 +29,7 @@ This project was developed as part of a backend evaluation task, with a focus on
 **Database:** SQLite (development), PostgreSQL (production)
 **Authentication:** django-allauth
 **Frontend:** Django Templates + Bootstrap
+**Deployment:** Docker + AWS EC2
 
 
 ##  Setup Instructions
@@ -81,11 +83,11 @@ Slug collisions are explicitly handled to prevent database integrity errors
 ## Design and Decisions
 Function-based views for clarity and explicit control
 Permission checks handled in views, not templates
-Soft delete used instead of hard delete for moderation safety
-Database-agnostic search implementation
-SQLite used for development, PostgreSQL for production deployment
+Soft delete used instead of hard delete to preserve moderation history and allowing future recovery if needed.
+Database-agnostic search implementation;search is implemented without db specific extensions,ensuring portability.
+SQLite used for development, PostgreSQL for production deployment since it supports concurrency better
 
 ## Deployment
-SQLite is used during development
-PostgreSQL is used in production
-Deployed at: <your-deployed-url>
+The application is containerized using Docker
+PostgreSQL is used as the production database
+Deployed on AWS EC2 with a public URL: http://forum.elcodigo.me
