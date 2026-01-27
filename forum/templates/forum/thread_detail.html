@@ -25,6 +25,22 @@
   {{ thread.content|markdownify|safe }}
 </div>
 
+{% if thread.resources.exists %}
+  <hr>
+  <h3>Resources</h3>
+  <ul>
+    {% for resource in thread.resources.all %}
+      <li>
+        <strong>{{ resource.title }}</strong>
+        ({{ resource.resource_type }}) —
+        <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer">
+          Open
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 <p>
   Upvote {{ thread.likes.count }}
   <a href="{% url 'like_thread' thread.id %}">Like</a>

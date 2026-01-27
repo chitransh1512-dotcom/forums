@@ -6,6 +6,11 @@
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
+  
+  <p style="font-size: 0.9em; color: #666;">
+    Tip: Mention users with <strong>@username</strong>
+  </p>
+
   <button type="submit">Post</button>
 </form>
 {% endblock %}

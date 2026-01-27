@@ -5,9 +5,8 @@ from django.contrib.auth.decorators import permission_required,login_required,us
 from django import forms
 from django.core.paginator import Paginator
 from django_ratelimit.decorators import ratelimit
-from difflib import SequenceMatcher
+from rapidfuzz import fuzz
 from django.db.models import Q
-
 # Create your views here.
 
 # Forms
@@ -54,35 +53,48 @@ def thread_list(request):
         {"page_obj": page_obj}
     )
 
-def _similarity(a, b):
-    return SequenceMatcher(None, a.lower(), b.lower()).ratio()
-
 @login_required
 def search_threads(request):
     query = request.GET.get("q", "").strip()
     threads = []
+
     if query:
-        candidates = Thread.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query)
-        ).distinct()
+        tokens = query.lower().split()
 
-        scored = []
+        q_filter = Q()
+        for token in tokens:
+            q_filter |= Q(title__icontains=token)
+            q_filter |= Q(content__icontains=token)
+
+        candidates = Thread.objects.filter(q_filter).distinct()
+
+        content_threads = {}
+
         for thread in candidates:
-            score = max(
-                _similarity(query, thread.title),
-                _similarity(query, thread.content[:200])
-            )
-            scored.append((score, thread))
+            title_score = fuzz.token_set_ratio(query, thread.title)
+            content_score = fuzz.token_set_ratio(query, thread.content[:500])
+            score = max(title_score * 1.3, content_score)
 
-        scored.sort(reverse=True, key=lambda x: x[0])
-        threads = [
-            thread for score, thread in scored if score >= 0.25
-        ]
+            if score >= 60:
+                content_threads[thread.id] = (score, thread)
+
+        for tag in Tag.objects.all():
+            if fuzz.token_set_ratio(query, tag.name) >= 70:
+                for thread in tag.threads.all():
+                    if thread.id not in content_threads:
+                        content_threads[thread.id] = (65, thread)
+
+        threads = sorted(
+            content_threads.values(),
+            key=lambda item: item[0],
+            reverse=True,
+        )
+
+        threads = [thread for score, thread in threads]
 
     paginator = Paginator(threads, 13)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(
         request,
         "forum/search_results.html",
