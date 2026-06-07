@@ -21,4 +21,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD gunicorn forums.wsgi:application --bind 0.0.0.0:$PORT
+CMD sh -c "python manage.py migrate && gunicorn forums.wsgi:application --bind 0.0.0.0:$PORT"
